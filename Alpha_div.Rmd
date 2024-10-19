@@ -1,0 +1,287 @@
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(phyloseq)
+library(vegan)
+library(tidyverse)
+
+filepath ="C:/Users/madel/OneDrive - NTNU/Doktorgrad/Project 5 - Amalies prosjekt - rK intake water in salmon larvea/R-analysis/" 
+filepath_figures = paste0(filepath, "Figures/", Sys.Date(), "_")
+source(file = "plot_theme.R")
+ps = readRDS(file = paste0(filepath, "2023-04-17_phyloseq_without_salmon.RDS"))
+```
+
+# Alpha diversity 
+```{r}
+alpha = dplyr::left_join(
+  #get sample data
+  microbiome::sample_tibble(ps),
+  #calculate observed richness and exponential shannon
+  vegan::renyi(x = t(microbiome::abundances(ps)), scales = c(0, 1), hill = TRUE) %>% mutate(SampleID = rownames(.)), by = join_by(SampleID)) %>% 
+  dplyr::left_join(.,
+  #estimate Chao1
+  vegan::estimateR(x = t(microbiome::abundances(ps))) %>% t() %>% as.data.frame() %>% select(S.chao1) %>% mutate(SampleID = rownames(.)), by = join_by(SampleID)) %>%
+  rename(Observed = "0", Exp_Shannon = "1", Chao1 = "S.chao1") %>%
+  #calculate evenness
+  mutate(evenness = Exp_Shannon/Observed) %>% 
+  #add group names to df
+  mutate(SampleType2 = case_when(Sample_type == "Intake water"~"AW", 
+                                 Sample_type == "Rearing water" ~ "RW", 
+                                 T ~Sample_type)) %>%
+  mutate(Group = paste0(SampleType2, "_Add-", Selection)) %>%
+  mutate(Group = factor(Group, levels = c("Gut_Add-K", "Gut_Add-r", "RW_Add-r", 
+                                          "RW_Add-K", "AW_Add-r", "AW_Add-K")))
+```
+
+```{r}
+richness = alpha %>% 
+  select(Group, Observed, Chao1) %>%
+  tidyr::pivot_longer(-Group) %>%
+  mutate(name = factor(name, levels = c("Observed", "Chao1"))) %>%
+  ggplot(aes(x=Group, y = value, fill = name)) + 
+  geom_point(position = position_dodge(width = 0.5)) + 
+  stat_summary(fun.data = conf3, width = 0.4,
+               color = "black", 
+               aes(fill = name), 
+               geom = "boxplot", alpha = 0.8, show.legend = TRUE, 
+               position = position_dodge(width = 0.5)) + 
+  my.theme + 
+  xlab("") + 
+  ylab("ASV \n richness") + 
+  theme(legend.title = element_blank(),panel.grid.major =  element_blank()) + 
+  scale_fill_manual(values = c("white", "grey"))
+
+exp_shannon = alpha %>% 
+  select(Group, Exp_Shannon) %>%
+  ggplot(aes(x=Group, y = Exp_Shannon)) + 
+  geom_point(position = position_dodge(width = 0.5)) + 
+  stat_summary(fun.data = conf3, width = 0.4,
+               color = "black",  aes(fill = Group), 
+               geom = "boxplot", alpha = 0.8, show.legend = TRUE, 
+               position = position_dodge(width = 0.5)) + 
+  my.theme + 
+  scale_fill_manual(values = rep("white", 6), labels = "Observed") + 
+  xlab("") + 
+  ylab("Exponential \n  Shannon") + 
+  theme(legend.title = element_blank(),panel.grid.major =  element_blank() ) 
+
+evenness =
+
+alpha %>% 
+  select(Group, evenness) %>%
+  ggplot(aes(x=Group, y = evenness)) + 
+  geom_point(position = position_dodge(width = 0.5)) + 
+  stat_summary(fun.data = conf3, width = 0.4,
+               color = "black",  aes(fill = Group), 
+               geom = "boxplot", alpha = 0.8, show.legend = TRUE, 
+               position = position_dodge(width = 0.5)) + 
+  my.theme + 
+  scale_fill_manual(values = rep("white", 6), labels = "Observed") + 
+  xlab("") + 
+  ylab(". \n  Evenness") + 
+  theme(legend.title = element_blank(),panel.grid.major =  element_blank() ) 
+
+
+```
+
+```{r}
+ggpubr::ggarrange(richness, exp_shannon, evenness, labels = c("a)", "b)", "c)"), nrow = 3)
+
+ggsave(filename = paste0(filepath_figures, "figure2_alpha2.pdf"), width = 180, height = 150, units = "mm")
+```
+
+# Stats AW
+```{r}
+alpha %>%
+  filter(SampleType2 == "AW") %>%
+  group_by(Group) %>%
+  rstatix::shapiro_test(Observed)
+#variables are normally distributed
+
+var.test(Observed ~ Group, data = alpha %>% filter(SampleType2 == "AW") )
+# similar variance
+
+alpha %>%
+  filter(SampleType2 == "AW") %>%
+  mutate(Group = factor(Group)) %>%
+  rstatix::t_test(Observed~Group, var.equal = TRUE)
+
+# Shannon
+alpha %>%
+  filter(SampleType2 == "AW") %>%
+  group_by(Group) %>%
+  rstatix::shapiro_test(Exp_Shannon)
+#variables are normally distributed
+
+var.test(Exp_Shannon ~ Group, data = alpha %>% filter(SampleType2 == "AW") )
+# similar variance
+
+alpha %>%
+  filter(SampleType2 == "AW") %>%
+  mutate(Group = factor(Group)) %>%
+  rstatix::t_test(Exp_Shannon~Group)
+```
+## Stats gut
+```{r}
+alpha %>%
+  filter(SampleType2 == "Gut") %>%
+  group_by(Group) %>%
+  rstatix::shapiro_test(Observed)
+#variables are not normally distributed
+
+var.test(Observed ~ Group, data = alpha %>% filter(SampleType2 == "Gut") )
+# not similar variance
+
+alpha %>%
+  filter(SampleType2 == "Gut") %>%
+  mutate(Group = factor(Group)) %>%
+  rstatix::wilcox_test(data = ., Observed~Group, alternative = "two.sided")
+
+# Shannon
+alpha %>%
+  filter(SampleType2 == "Gut") %>%
+  group_by(Group) %>%
+  rstatix::shapiro_test(Exp_Shannon)
+#variables are not normally distributed
+
+var.test(Exp_Shannon ~ Group, data = alpha %>% filter(SampleType2 == "Gut") )
+# not similar variance
+
+alpha %>%
+  filter(SampleType2 == "Gut") %>%
+  mutate(Group = factor(Group)) %>%  
+  rstatix::wilcox_test(data = ., Observed~Group, alternative = "two.sided")
+
+```
+
+## Stats rearing water
+```{r}
+alpha %>%
+  filter(SampleType2 == "RW") %>%
+  group_by(Group) %>%
+  rstatix::shapiro_test(Observed)
+#variables are normally distributed
+
+var.test(Observed ~ Group, data = alpha %>% filter(SampleType2 == "RW") )
+# not similar variance
+
+alpha %>%
+  filter(SampleType2 == "RW") %>%
+  mutate(Group = factor(Group)) %>%
+  rstatix::t_test(Observed~Group)
+
+# Shannon
+alpha %>%
+  filter(SampleType2 == "RW") %>%
+  group_by(Group) %>%
+  rstatix::shapiro_test(Exp_Shannon)
+#variables are normally distributed
+
+var.test(Exp_Shannon ~ Group, data = alpha %>% filter(SampleType2 == "RW") )
+#  similar variance
+
+alpha %>%
+  filter(SampleType2 == "RW") %>%
+  mutate(Group = factor(Group)) %>%  
+  rstatix::t_test(Exp_Shannon~Group)
+
+```
+
+## Stats rearing water vs gut
+```{r}
+alpha %>%
+  filter(SampleType2 != "AW") %>%
+  group_by(SampleType2) %>%
+  rstatix::shapiro_test(Observed)
+#variables are not normally distributed
+
+var.test(Observed ~ SampleType2, data = alpha %>% filter(SampleType2 != "AW") )
+# similar variance
+
+alpha %>%
+  filter(SampleType2 != "AW") %>%
+  mutate(Group = factor(Group)) %>%
+ rstatix::wilcox_test(data = ., Observed~SampleType2, alternative = "two.sided")
+
+# Shannon
+alpha %>%
+  filter(SampleType2 != "AW") %>%
+  group_by(SampleType2) %>%
+  rstatix::shapiro_test(Exp_Shannon)
+#variables are not normally distributed
+
+var.test(Exp_Shannon ~ SampleType2, data = alpha %>% filter(SampleType2 != "AW") )
+#  not similar variance
+
+alpha %>%
+  filter(SampleType2 != "AW") %>%
+  mutate(SampleType2 = factor(SampleType2)) %>%  
+  rstatix::wilcox_test(data = ., Exp_Shannon~SampleType2, alternative = "two.sided")
+
+
+```
+
+
+# Evenness
+## Stats AW
+```{r}
+alpha %>%
+  filter(SampleType2 == "AW") %>%
+  group_by(Group) %>%
+  rstatix::shapiro_test(evenness)
+#variables are normally distributed
+
+var.test(evenness ~ Group, data = alpha %>% filter(SampleType2 == "AW") )
+# similar variance
+
+alpha %>%
+  filter(SampleType2 == "AW") %>%
+  mutate(Group = factor(Group)) %>%
+  rstatix::t_test(evenness~Group, var.equal = TRUE)
+```
+
+```{r}
+alpha %>%
+  filter(SampleType2 == "RW") %>%
+  group_by(Group) %>%
+  rstatix::shapiro_test(evenness)
+#variables are normally distributed
+
+var.test(evenness ~ Group, data = alpha %>% filter(SampleType2 == "RW") )
+# similar variance
+
+alpha %>%
+  filter(SampleType2 == "RW") %>%
+  mutate(Group = factor(Group)) %>%
+  rstatix::t_test(evenness~Group, var.equal = TRUE)
+
+alpha %>%
+  filter(SampleType2 == "RW") %>%
+  mutate(Group = factor(Group)) %>%  
+  rstatix::wilcox_test(data = ., evenness~Group, alternative = "two.sided")
+
+
+```
+```{r}
+alpha %>%
+  filter(SampleType2 == "Gut") %>%
+  group_by(Group) %>%
+  rstatix::shapiro_test(evenness)
+#variables are not normally distributed
+
+var.test(evenness ~ Group, data = alpha %>% filter(SampleType2 == "Gut") )
+# not similar variance
+
+alpha %>%
+  filter(SampleType2 == "Gut") %>%
+  mutate(Group = factor(Group)) %>%
+  rstatix::t_test(evenness~Group, var.equal = TRUE)
+```
+```{r}
+alpha %>%
+  group_by(Group) %>%
+  summarise(mean_eveness = mean(evenness), 
+            sd_evenness = sd(evenness))
+```
+

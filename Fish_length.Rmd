@@ -1,0 +1,66 @@
+
+
+```{r}
+library(readxl)
+library(ggplot2)
+library(rstatix)
+library(dplyr)
+filepath ="C:/Users/madel/OneDrive - NTNU/Doktorgrad/Project 5 - Amalies prosjekt - rK intake water in salmon larvea/R-analysis/" 
+filepath_figures = paste0(filepath, "Figures/", Sys.Date(), "_")
+source(file = "plot_theme.R")
+```
+```{r}
+fish_length = readxl::read_excel(path = paste0(filepath, "2023-11-28_Fish_length.xlsx"))  %>%
+  mutate(Group = case_when(Group == "Fish_K"~"Add-K", 
+                                 Group == "Fish_r" ~ "Add-r", 
+                                 T ~Group)) 
+```
+
+```{r}
+fish_length %>%
+  mutate(dph = as.character(dph)) %>%
+  ggplot(aes(x=dph, y = Length_mm, fill = Group)) + 
+  geom_point(position = position_dodge(width = 0.5), size = 1) + 
+  stat_summary(fun.data = conf3, width = 0.4,
+               color = "black", 
+               aes(fill = Group), 
+               geom = "boxplot", alpha = 0.8, show.legend = TRUE, 
+               position = position_dodge(width = 0.5)) + 
+  scale_fill_manual("", values = c(cbPalette[3], cbPalette[2]) ) + 
+  my.theme + 
+  ylab("Length (mm)") 
+
+ggsave(filename = paste0(filepath_figures, "Fig_1_fishlength.png"), width = 180/2, height = 80, units = "mm")
+
+```
+
+```{r}
+fish_length %>%
+  group_by(Group, dph) %>%
+  rstatix::shapiro_test(Length_mm)
+#variables are not normally distributed
+
+res.ftest <- var.test(Length_mm ~ Group, data = fish_length%>%filter(dph == 22))
+res.ftest
+
+fish_length %>%
+  group_by(dph) %>% 
+  rstatix::wilcox_test(data = ., Length_mm~Group, alternative = "two.sided")
+#variables are not normally distributed
+
+```
+```{r}
+fish_length %>%
+  group_by(Fish_strain, dph) %>%
+  rstatix::shapiro_test(Length_mm)
+#variables are not normally distributed
+
+res.ftest <- var.test(Length_mm ~ Fish_strain, data = fish_length%>%filter(dph == 22))
+res.ftest
+
+fish_length %>%
+  group_by(dph) %>% 
+  rstatix::wilcox_test(data = ., Length_mm~Fish_strain, alternative = "two.sided")
+#variables are not normally distributed
+
+```

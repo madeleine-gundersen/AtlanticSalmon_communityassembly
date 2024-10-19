@@ -1,0 +1,48 @@
+
+```{r}
+library(readxl)
+library(ggplot2)
+filepath ="C:/Users/madel/OneDrive - NTNU/Doktorgrad/Project 5 - Amalies prosjekt - rK intake water in salmon larvea/R-analysis/" 
+filepath_figures = paste0(filepath, "Figures/", Sys.Date(), "_")
+source(file = "plot_theme.R")
+```
+```{r}
+flow_data = readxl::read_excel(path = paste0(filepath, "flow_data_bacterial_density_wild_aq_Salmon_rk.xlsx")) %>%
+  mutate(events_mL = events_uL*Dilution*1000, 
+         mil_bacteria_mL = events_mL/1000000, 
+         dph = dph+7) %>%
+
+  mutate(SampleType2 = case_when(SampleType == "AddedWater"~"AW", 
+                                 SampleType == "RearingWater" ~ "RW", 
+                                 T ~SampleType)) %>%
+  mutate(Group = paste0(SampleType2, "_Add-", Selection)) %>%
+  mutate(Group = factor(Group, levels = c("Gut_Add-K", 
+                                          "Gut_Add-r",
+                                          "AW_Add-K", 
+                                          "AW_Add-r",
+                                          "RW_Add-K",
+                                          "RW_Add-r" )))
+```
+
+```{r}
+flow_data %>% 
+  group_by(Group, dph, SampleType) %>% 
+  summarise(av_density = mean(mil_bacteria_mL), 
+            sd = sd(mil_bacteria_mL)) %>% 
+  ggplot(aes(x = dph, y = av_density, fill = Group, color = Group, shape = Group)) +  
+  geom_errorbar(aes(ymin=av_density-sd, ymax=av_density+sd), width=.2, size =0.8) + 
+  geom_line(aes(linetype = SampleType), size = 1) + 
+  geom_point(size = 3, color = "black") + 
+  my.theme + 
+  scale_shape_manual(values = c(24, 24, 21, 21)) + 
+  scale_fill_manual(values = c(cbPalette[3], cbPalette[2],cbPalette[3], cbPalette[2] )) + 
+  scale_color_manual(values = c(cbPalette[3], cbPalette[2],cbPalette[3], cbPalette[2] )) + 
+  scale_linetype_manual(values = c("dashed", "solid")) + 
+  guides(linetype = "none") + 
+  theme(legend.title = element_blank()) + 
+  ylab(expression(~ 10^6 ~ "bacteria per mL"))  + 
+  scale_x_continuous(breaks = seq(7,25,2))
+
+ggsave(filename = paste0(filepath_figures, "Figure_S1_flow_bacterialdensity.png"), width = 180, height = 70, units = "mm")
+```
+

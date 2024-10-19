@@ -1,0 +1,230 @@
+---
+title: "iCAMP"
+---
+```{r}
+library(iCAMP)
+library(dplyr)
+library(ggplot2)
+library(ggh4x)
+library(picante)
+setwd("C:/Users/madel/OneDrive - NTNU/Doktorgrad/Project 5 - Amalies prosjekt - rK intake water in salmon larvea/ASV_2022")
+```
+
+```{r}
+#import the phyloseq 
+data_ASVs = readRDS("2023-04-17_phyloseq_without_salmon.RDS")
+filepath ="C:/Users/madel/OneDrive - NTNU/Doktorgrad/Project 5 - Amalies prosjekt - rK intake water in salmon larvea/R-analysis/" 
+filepath_figures = paste0(filepath, "Figures/", Sys.Date(), "_")
+source(file = "plot_theme.R")
+
+sample_data(data_ASVs)=sample_data(data_ASVs) %>% data.frame() %>% 
+  mutate(SampleType2 = case_when(Sample_type == "Intake water"~"AW", 
+                                 Sample_type == "Rearing water" ~ "RW", 
+                                 T ~Sample_type)) %>%
+  mutate(Group = paste0(SampleType2, "_Add-", Selection)) %>%
+  mutate(Group = factor(Group, levels = c("Gut_Add-K", 
+                                          "Gut_Add-r",
+                                          "AW_Add-K", 
+                                          "AW_Add-r",
+                                          "RW_Add-K",
+                                          "RW_Add-r" ))) %>%
+  mutate(DPE = DPE + 7) %>%
+  mutate(dph = as.character(DPE)) %>% 
+  mutate(dph = factor(dph, levels = c("14", "16", "18", "21", "22"))) %>%
+  mutate(Sample_name = case_when(SampleType2 == "Gut"~  paste0(dph, "_", Flask, "_" , Strain), 
+                                 SampleType2 == "Aw"~  paste0(dph),
+                                 SampleType2 == "Rw"~  paste0(dph, "_", Flask, "_" , Strain))) %>% 
+  sample_data() 
+```
+
+# Calculations - Analysis
+## NTI
+```{r}
+exp = data_ASVs
+samp = t(otu_table(exp))@.Data #stores the OTU table in samp
+phy = phyloseq::phy_tree(exp) #stores the phylogenetic tree in phy 
+samporder = samp[,phy$tip.label] #sorts the otu-table so it matches the phylogenetic tree 
+phydist = stats::cophenetic(phy) # make a phylogenetic distance matrix of the phylogentic tree
+NTI = picante::ses.mntd(samporder, phydist, null.model="taxa.labels",runs = 999, iterations = 1000, abundance.weighted=FALSE) 
+NTI[["NTI"]] <- NTI$mntd.obs.z*-1 # transform z-scores in NTI by multiplying by -1
+write.table(NTI, "~/OneDrive - NTNU/Doktorgrad/Ferdige prosjekter/Project 5 - Amalies prosjekt - rK intake water in salmon larvea/ASV_2022/2022-03-22_NTI_Amalies-datasett_ASV.tsv", row.names=TRUE,col.names=T,sep="\t")
+```
+
+```{r}
+NTI_per_sample_df = read.table("2022-03-22_NTI_Amalies-datasett_ASV.tsv")
+#add NTIs to metadata 
+NTI_per_sample_df = NTI_per_sample_df %>% 
+  rownames_to_column("Sample") %>%
+  select(Sample, NTI)
+
+meta = data.frame(sample_data(exp)) 
+NTI_with_meta = left_join(meta, NTI_per_sample_df, by = join_by(Sample))
+
+write.table(NTI_with_meta, "2023-11-30_NTI_Amalies-datasett_ASV_withmeta.tsv",row.names=TRUE,col.names=T,sep="\t")
+``` 
+
+## bNTI
+```{r}
+data = data_ASVs
+ASV_tab = t(as.matrix(data@otu_table@.Data)) #community data with samples as rows and species as cols
+ASV_tree = data@phy_tree #phylogenic tree rooted
+ASV_tax = data@tax_table@.Data
+source(file = "iCAMP/R/pdist.p.r")
+pd = iCAMP::pdist.p(tree = ASV_tree)
+saveRDS(object = pd, file = "~/OneDrive - NTNU/Doktorgrad/Ferdige prosjekter/Project 5 - Amalies prosjekt - rK intake water in salmon larvea/ASV_2022/2022-03-22_pd_icamp.RDS")
+
+qpen_ASV_dataset = iCAMP::qpen(
+  comm = ASV_tab, 
+  tree = ASV_tree,
+  pd = pd,
+  ab.weight = TRUE,
+  rand.time = 1000, 
+  sig.bNTI = 1.96, 
+  sig.rc = 0.95,
+  nworker = 4)
+
+saveRDS(object = qpen_ASV_dataset, file = "~/OneDrive - NTNU/Doktorgrad/Ferdige prosjekter/Project 5 - Amalies prosjekt - rK intake water in salmon larvea/ASV_2022/2022-03-22_qpen_results.RDS")
+```
+
+# Plotting and analysis 
+## NTI 
+```{r}
+NTI_per_sample_df = read.table("2023-11-30_NTI_Amalies-datasett_ASV_withmeta.tsv")
+
+NTI = NTI_per_sample_df %>% filter(Sample_type != "Intake water") %>% 
+  ggplot2::ggplot(aes(x = NTI, y = Group)) + 
+  annotate(geom = "rect", xmin=-2, xmax=2, ymin=-Inf, ymax=Inf,   
+           color = "grey50", fill = "grey50", alpha = 0.1) + 
+  geom_vline(xintercept = c(-2, 2), linetype = "dashed") +
+  geom_point() + 
+  my.theme +
+  theme(axis.title.y = element_blank(), 
+        text = element_text(size = 20)) +  
+    stat_summary(fun.data = conf3, width = 0.4,
+               color = "black", 
+               geom = "boxplot", alpha = 0.8, show.legend = TRUE, 
+               position = position_dodge(width = 0.5)) 
+```
+
+
+```{r}
+qpen_ASV_dataset_no_salmon = readRDS("2022-03-22_qpen_results.RDS")
+exp = data_ASVs
+bNTI_df = qpen_ASV_dataset_no_salmon$result 
+colnames(bNTI_df)[1:2] = c("Sample_A", "Sample_B") 
+#Sample A metadata
+meta_A = data.frame(exp@sam_data)
+colnames(meta_A) = paste0(colnames(meta_A),"_A")
+bNTI_df = merge(bNTI_df, meta_A, by = "Sample_A")
+# Sample B metadata 
+meta_B = data.frame(exp@sam_data)
+colnames(meta_B) = paste0(colnames(meta_B),"_B")
+bNTI_df = merge(bNTI_df, meta_B, by = "Sample_B")
+bNTI_df = bNTI_df %>% mutate(selection = paste0(Selection_A,"_vs_", Selection_B), 
+                   flasks = paste0(Flask_A,"_vs_", Flask_B), 
+                   sample_types = paste0(Sample_type_A,"_vs_", Sample_type_B)) %>% 
+  dplyr::mutate(selection = replace(selection, selection == "r_vs_K", "K_vs_r"))
+```
+
+```{r}
+bntiplot = bNTI_df %>%  
+  filter(Sample_type_A == Sample_type_B) %>% 
+  filter(Selection_A  == Selection_B) %>% 
+  filter(Sample_type_A != "Intake water") %>%
+  ggplot2::ggplot(aes(x = bNTI, y = Group_B)) + 
+  annotate(geom = "rect", xmin=-2, xmax=2, ymin=-Inf, ymax=Inf,
+            color = "grey50", 
+            fill = "grey50", alpha = 0.1) + 
+  geom_point() + 
+  geom_vline(xintercept = c(-2, 2), linetype = "dashed") +
+  my.theme + 
+  theme(axis.title.y = element_blank(), 
+        text = element_text(size = 20)) + 
+      stat_summary(fun.data = conf3, width = 0.4,
+               color = "black", 
+               geom = "boxplot", alpha = 0.8, show.legend = TRUE, 
+               position = position_dodge(width = 0.5)) +
+  xlab(expression(beta~"NTI")) 
+```
+
+```{r, warning=FALSE}
+ggpubr::ggarrange(NTI , bntiplot, labels = c("A)", "B)"))  + 
+  ggpubr::bgcolor(color = "white")
+ggsave(paste0(filepath_figures, "Fig6_communityassembly.png"), width = 10, height = 4)
+```
+
+# Phylogenetic signal 
+
+```{r}
+library(phyloseq)
+library(dplyr)
+library(ggplot2)
+#load data 
+filepath ="C:/Users/madel/OneDrive - NTNU/Doktorgrad/Project 9 QPEN simulations"
+filepath_results =paste0( "C:/Users/madel/OneDrive - NTNU/Doktorgrad/Project 9 QPEN simulations/results/", Sys.Date(), "_QPEN-exploration-thesis_")
+filepath_figures = paste0("C:/Users/madel/OneDrive - NTNU/Doktorgrad/Project 9 QPEN simulations/figures/" , Sys.Date(), "_QPEN-exploration-thesis_")
+source(file = paste0(filepath, "/pick_new_outgroup.R"))
+
+cbPalette <- c( "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999")
+
+all = readRDS("C:/Users/madel/OneDrive - NTNU/Doktorgrad/Project 9 QPEN simulations/2023-04-17_phyloseq_without_salmon.RDS")
+```
+
+```{r}
+# Required objects
+## OTU table with relative abundances (class: matrix or data.frame)
+otu_tab = (data_ASVs@otu_table@.Data)
+## Phylogenetic tree (class: phylo)
+phy = phy_tree(data_ASVs)
+## Matrix with relevant environmental parameters (class: matrix or data.frame)
+env = (sample_data(data_ASVs))
+env = as_data_frame(env)
+#reformat to be numeric
+env1 = env %>% mutate(Sample_type = as.numeric(as.factor(Sample_type)), 
+               Flask = as.numeric(as.factor(Flask)), 
+               Selection = as.numeric(as.factor(Selection)), 
+               Strain = as.numeric(as.factor(Strain))) %>%
+  select(!Density_cell_uL) %>%
+  select(!Sample)
+
+# Make sure that OTUs in the OTU table occur in the same order as on the tips of the phylogenetic tree
+identical(rownames(otu_tab), phy$tip.label)
+
+# Calculate relative abundance-weighted means for the environmental parameters
+## Create empty matrix with as many rows as the OTU table and as many columns as the matrix with environmental parameters
+wt_means <- matrix(rep(NA, nrow(otu_tab) * ncol(env1)), nrow = nrow(otu_tab), ncol = ncol(env1))
+
+## For each OTU, calculate the weighted means for the individual environmental parameters
+for(i in 1:nrow(otu_tab)){
+  wt_means[i, ] <- apply(env1, MARGIN = 2, function(x) weighted.mean(x, otu_tab[i, ]))
+}
+## Standardize wieghted means to z-scores (the "decostand" function of the vegan package is used here, but you could also use the regular base "scale" function, or any other method to standardize the variables)
+wt_means <- vegan::decostand(wt_means, MARGIN = 2, method = "standardize")
+# Calculate phylogenetic distances
+phy_dist <- ape::cophenetic.phylo(phy)
+## Standardize distances to percentages of the maximum distance
+phy_dist <- phy_dist / max(phy_dist)
+# Calculate Mantel correlograms to evaluate phylogenetic signal (here, correlations are evaluated at phylogenetic distance steps of 2%, i.e. 50 distance class steps in total; you can change this by adjusting "n.class")
+## Note: this make take a while especially for large datasets with lot of OTUs
+phy_sig_1 <- vegan::mantel.correlog(dist(wt_means), phy_dist, cutoff = FALSE, nperm = 999, mult = "holm", progressive = TRUE, n.class = 50)
+saveRDS(object =phy_sig_1, file =  paste0(filepath_results, "phylogenetic_signal_without_error_sequences.RDS"))
+```
+
+
+```{r}
+phy_sig_1 = readRDS("2023-04-25_QPEN-exploration-thesis_phylogenetic_signal_without_error_sequences.RDS")
+mantel_df = phy_sig_1$mantel.res %>% data.frame() 
+colnames(mantel_df) = c("phy_dist", "n_dist", "mantel_correlation", "p_mantel", "p_corrected_mantel")
+
+mantel_df %>% 
+  mutate(Significant = case_when(p_corrected_mantel < 0.05 ~ "S", 
+                                 T ~ "n.s.")) %>% 
+  ggplot(aes(x=phy_dist, y = mantel_correlation, ) ) + 
+
+  theme_bw(base_size = 10) + 
+  xlab("Phylogenetic distance") + 
+  ylab("Mantel Test Statistic (Pearson's r)") + 
+  geom_hline(yintercept = 0, linetype = "dashed") +  geom_point(size = 2, aes(shape = Significant))  
+
+ggsave(filename = paste0(filepath_figures, "Mantel_correlogram.png"), width = 7, height = 4)
+```

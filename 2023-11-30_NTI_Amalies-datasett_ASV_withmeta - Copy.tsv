@@ -1,0 +1,89 @@
+"Sample"	"Sample_type"	"Flask"	"Individual"	"DPE"	"Selection"	"Strain"	"Density_cell_uL"	"SampleType2"	"Group"	"dph"	"Sample_name"	"NTI"
+"1"	"A10r-L10_S12"	"Gut"	"A10"	10	22	"r"	"A"	NA	"Gut"	"Gut_Add-r"	"22"	"22_A10_A"	7.15422967280695
+"2"	"A10r-L7_S9"	"Gut"	"A10"	7	22	"r"	"A"	NA	"Gut"	"Gut_Add-r"	"22"	"22_A10_A"	7.15588218952671
+"3"	"A10r-L8_S10"	"Gut"	"A10"	8	22	"r"	"A"	NA	"Gut"	"Gut_Add-r"	"22"	"22_A10_A"	-0.722329092672472
+"4"	"A10r-L9_S11"	"Gut"	"A10"	9	22	"r"	"A"	NA	"Gut"	"Gut_Add-r"	"22"	"22_A10_A"	6.85434074640489
+"5"	"A11K-L10_S44"	"Gut"	"A11"	10	22	"K"	"A"	NA	"Gut"	"Gut_Add-K"	"22"	"22_A11_A"	7.8175237269995
+"6"	"A11K-L7_S41"	"Gut"	"A11"	7	22	"K"	"A"	NA	"Gut"	"Gut_Add-K"	"22"	"22_A11_A"	9.42453870634519
+"7"	"A11K-L8_S42"	"Gut"	"A11"	8	22	"K"	"A"	NA	"Gut"	"Gut_Add-K"	"22"	"22_A11_A"	10.2917440902491
+"8"	"A11K-L9_S43"	"Gut"	"A11"	9	22	"K"	"A"	NA	"Gut"	"Gut_Add-K"	"22"	"22_A11_A"	6.41629111950194
+"9"	"A13r-L10_S16"	"Gut"	"A13"	10	22	"r"	"A"	NA	"Gut"	"Gut_Add-r"	"22"	"22_A13_A"	6.13051007247126
+"10"	"A13r-L7_S13"	"Gut"	"A13"	7	22	"r"	"A"	NA	"Gut"	"Gut_Add-r"	"22"	"22_A13_A"	4.7630332600231
+"11"	"A13r-L8_S14"	"Gut"	"A13"	8	22	"r"	"A"	NA	"Gut"	"Gut_Add-r"	"22"	"22_A13_A"	4.3269463616296
+"12"	"A13r-L9_S15"	"Gut"	"A13"	9	22	"r"	"A"	NA	"Gut"	"Gut_Add-r"	"22"	"22_A13_A"	3.24542085406398
+"13"	"A14K-L10_S48"	"Gut"	"A14"	10	22	"K"	"A"	NA	"Gut"	"Gut_Add-K"	"22"	"22_A14_A"	5.46995732242599
+"14"	"A14K-L7_S45"	"Gut"	"A14"	7	22	"K"	"A"	NA	"Gut"	"Gut_Add-K"	"22"	"22_A14_A"	7.08993370845713
+"15"	"A14K-L8_S46"	"Gut"	"A14"	8	22	"K"	"A"	NA	"Gut"	"Gut_Add-K"	"22"	"22_A14_A"	2.326842080754
+"16"	"A14K-L9_S47"	"Gut"	"A14"	9	22	"K"	"A"	NA	"Gut"	"Gut_Add-K"	"22"	"22_A14_A"	8.6659095026289
+"17"	"A2r-L10_S4"	"Gut"	"A2"	10	22	"r"	"A"	NA	"Gut"	"Gut_Add-r"	"22"	"22_A2_A"	3.77143561395405
+"18"	"A2r-L7_S1"	"Gut"	"A2"	7	22	"r"	"A"	NA	"Gut"	"Gut_Add-r"	"22"	"22_A2_A"	7.16692520189674
+"19"	"A2r-L8_S2"	"Gut"	"A2"	8	22	"r"	"A"	NA	"Gut"	"Gut_Add-r"	"22"	"22_A2_A"	5.68599979899427
+"20"	"A2r-L9_S3"	"Gut"	"A2"	9	22	"r"	"A"	NA	"Gut"	"Gut_Add-r"	"22"	"22_A2_A"	0.915744067397455
+"21"	"A3K-L10_S36"	"Gut"	"A3"	10	22	"K"	"A"	NA	"Gut"	"Gut_Add-K"	"22"	"22_A3_A"	8.10661508188514
+"22"	"A3K-L7_S33"	"Gut"	"A3"	7	22	"K"	"A"	NA	"Gut"	"Gut_Add-K"	"22"	"22_A3_A"	7.82395994750965
+"23"	"A3K-L8_S34"	"Gut"	"A3"	8	22	"K"	"A"	NA	"Gut"	"Gut_Add-K"	"22"	"22_A3_A"	8.57146683688447
+"24"	"A3K-L9_S35"	"Gut"	"A3"	9	22	"K"	"A"	NA	"Gut"	"Gut_Add-K"	"22"	"22_A3_A"	7.73063929260597
+"25"	"A5r-L10_S8"	"Gut"	"A5"	10	22	"r"	"A"	NA	"Gut"	"Gut_Add-r"	"22"	"22_A5_A"	3.57534930433115
+"26"	"A5r-L7_S5"	"Gut"	"A5"	7	22	"r"	"A"	NA	"Gut"	"Gut_Add-r"	"22"	"22_A5_A"	4.72778653280896
+"27"	"A5r-L8_S6"	"Gut"	"A5"	8	22	"r"	"A"	NA	"Gut"	"Gut_Add-r"	"22"	"22_A5_A"	3.38724476959146
+"28"	"A5r-L9_S7"	"Gut"	"A5"	9	22	"r"	"A"	NA	"Gut"	"Gut_Add-r"	"22"	"22_A5_A"	1.58589541706911
+"29"	"A6K-L10_S40"	"Gut"	"A6"	10	22	"K"	"A"	NA	"Gut"	"Gut_Add-K"	"22"	"22_A6_A"	7.1203920598176
+"30"	"A6K-L7_S37"	"Gut"	"A6"	7	22	"K"	"A"	NA	"Gut"	"Gut_Add-K"	"22"	"22_A6_A"	4.74288327588491
+"31"	"A6K-L8_S38"	"Gut"	"A6"	8	22	"K"	"A"	NA	"Gut"	"Gut_Add-K"	"22"	"22_A6_A"	2.72699572052853
+"32"	"A6K-L9_S39"	"Gut"	"A6"	9	22	"K"	"A"	NA	"Gut"	"Gut_Add-K"	"22"	"22_A6_A"	6.89758808813269
+"33"	"W10K-L10_S60"	"Gut"	"W10"	10	22	"K"	"W"	NA	"Gut"	"Gut_Add-K"	"22"	"22_W10_W"	1.94513026183858
+"34"	"W10K-L7_S57"	"Gut"	"W10"	7	22	"K"	"W"	NA	"Gut"	"Gut_Add-K"	"22"	"22_W10_W"	6.41154602578097
+"35"	"W10K-L8_S58"	"Gut"	"W10"	8	22	"K"	"W"	NA	"Gut"	"Gut_Add-K"	"22"	"22_W10_W"	6.81771340926504
+"36"	"W10K-L9_S59"	"Gut"	"W10"	9	22	"K"	"W"	NA	"Gut"	"Gut_Add-K"	"22"	"22_W10_W"	7.96076239068576
+"37"	"W13r-L10_S32"	"Gut"	"W13"	10	22	"r"	"W"	NA	"Gut"	"Gut_Add-r"	"22"	"22_W13_W"	3.93365599594518
+"38"	"W13r-L7_S29"	"Gut"	"W13"	7	22	"r"	"W"	NA	"Gut"	"Gut_Add-r"	"22"	"22_W13_W"	4.81740810602206
+"39"	"W13r-L8_S30"	"Gut"	"W13"	8	22	"r"	"W"	NA	"Gut"	"Gut_Add-r"	"22"	"22_W13_W"	5.56859496454752
+"40"	"W13r-L9_S31"	"Gut"	"W13"	9	22	"r"	"W"	NA	"Gut"	"Gut_Add-r"	"22"	"22_W13_W"	6.02620885256115
+"41"	"W14K-L10_S64"	"Gut"	"W14"	10	22	"K"	"W"	NA	"Gut"	"Gut_Add-K"	"22"	"22_W14_W"	8.49707113109048
+"42"	"W14K-L7_S61"	"Gut"	"W14"	7	22	"K"	"W"	NA	"Gut"	"Gut_Add-K"	"22"	"22_W14_W"	8.43787422742717
+"43"	"W14K-L8_S62"	"Gut"	"W14"	8	22	"K"	"W"	NA	"Gut"	"Gut_Add-K"	"22"	"22_W14_W"	11.3796564199109
+"44"	"W14K-L9_S63"	"Gut"	"W14"	9	22	"K"	"W"	NA	"Gut"	"Gut_Add-K"	"22"	"22_W14_W"	3.58653709418027
+"45"	"W1r-L10_S20"	"Gut"	"W1"	10	22	"r"	"W"	NA	"Gut"	"Gut_Add-r"	"22"	"22_W1_W"	2.0367606099503
+"46"	"W1r-L7_S17"	"Gut"	"W1"	7	22	"r"	"W"	NA	"Gut"	"Gut_Add-r"	"22"	"22_W1_W"	7.04585951621995
+"47"	"W1r-L8_S18"	"Gut"	"W1"	8	22	"r"	"W"	NA	"Gut"	"Gut_Add-r"	"22"	"22_W1_W"	1.39434380344331
+"48"	"W1r-L9_S19"	"Gut"	"W1"	9	22	"r"	"W"	NA	"Gut"	"Gut_Add-r"	"22"	"22_W1_W"	1.14494117872028
+"49"	"W2K-L10_S52"	"Gut"	"W2"	10	22	"K"	"W"	NA	"Gut"	"Gut_Add-K"	"22"	"22_W2_W"	8.89745660171428
+"50"	"W2K-L7_S49"	"Gut"	"W2"	7	22	"K"	"W"	NA	"Gut"	"Gut_Add-K"	"22"	"22_W2_W"	17.1084082089635
+"51"	"W2K-L8_S50"	"Gut"	"W2"	8	22	"K"	"W"	NA	"Gut"	"Gut_Add-K"	"22"	"22_W2_W"	7.15821050777391
+"52"	"W2K-L9_S51"	"Gut"	"W2"	9	22	"K"	"W"	NA	"Gut"	"Gut_Add-K"	"22"	"22_W2_W"	7.06603461663097
+"53"	"W5r-L10_S24"	"Gut"	"W5"	10	22	"r"	"W"	NA	"Gut"	"Gut_Add-r"	"22"	"22_W5_W"	7.23088553133645
+"54"	"W5r-L7_S21"	"Gut"	"W5"	7	22	"r"	"W"	NA	"Gut"	"Gut_Add-r"	"22"	"22_W5_W"	2.05722812370126
+"55"	"W5r-L8_S22"	"Gut"	"W5"	8	22	"r"	"W"	NA	"Gut"	"Gut_Add-r"	"22"	"22_W5_W"	3.63806688579157
+"56"	"W5r-L9_S23"	"Gut"	"W5"	9	22	"r"	"W"	NA	"Gut"	"Gut_Add-r"	"22"	"22_W5_W"	6.32970073840395
+"57"	"W7K-L10_S56"	"Gut"	"W7"	10	22	"K"	"W"	NA	"Gut"	"Gut_Add-K"	"22"	"22_W7_W"	10.4600652219739
+"58"	"W7K-L7_S53"	"Gut"	"W7"	7	22	"K"	"W"	NA	"Gut"	"Gut_Add-K"	"22"	"22_W7_W"	11.6483039052954
+"59"	"W7K-L8_S54"	"Gut"	"W7"	8	22	"K"	"W"	NA	"Gut"	"Gut_Add-K"	"22"	"22_W7_W"	7.43683907266463
+"60"	"W7K-L9_S55"	"Gut"	"W7"	9	22	"K"	"W"	NA	"Gut"	"Gut_Add-K"	"22"	"22_W7_W"	10.9065044850414
+"61"	"W9r-L10_S28"	"Gut"	"W9"	10	22	"r"	"W"	NA	"Gut"	"Gut_Add-r"	"22"	"22_W9_W"	6.19018628946914
+"62"	"W9r-L7_S25"	"Gut"	"W9"	7	22	"r"	"W"	NA	"Gut"	"Gut_Add-r"	"22"	"22_W9_W"	6.73428276948355
+"63"	"W9r-L8_S26"	"Gut"	"W9"	8	22	"r"	"W"	NA	"Gut"	"Gut_Add-r"	"22"	"22_W9_W"	1.32331847149563
+"64"	"W9r-L9_S27"	"Gut"	"W9"	9	22	"r"	"W"	NA	"Gut"	"Gut_Add-r"	"22"	"22_W9_W"	4.75494729923198
+"65"	"K4-aw_S83"	"Intake water"	NA	NA	14	"K"	NA	"410"	"AW"	"AW_Add-K"	"14"	NA	10.282454885014
+"66"	"K5-aw_S85"	"Intake water"	NA	NA	16	"K"	NA	"980"	"AW"	"AW_Add-K"	"16"	NA	11.6792981777609
+"67"	"K6-aw_S87"	"Intake water"	NA	NA	18	"K"	NA	"No data"	"AW"	"AW_Add-K"	"18"	NA	10.1189928622826
+"68"	"K7b-aw_S81"	"Intake water"	NA	NA	21	"K"	NA	"380"	"AW"	"AW_Add-K"	"21"	NA	7.83396011706354
+"69"	"r4-aw_S84"	"Intake water"	NA	NA	14	"r"	NA	"190"	"AW"	"AW_Add-r"	"14"	NA	10.1243954246924
+"70"	"r5-aw_S86"	"Intake water"	NA	NA	16	"r"	NA	"1040"	"AW"	"AW_Add-r"	"16"	NA	15.79472875792
+"71"	"r6-aw_S88"	"Intake water"	NA	NA	18	"r"	NA	"No data"	"AW"	"AW_Add-r"	"18"	NA	12.6515238054211
+"72"	"r7b-aw_S82"	"Intake water"	NA	NA	21	"r"	NA	"530"	"AW"	"AW_Add-r"	"21"	NA	12.8415025810391
+"73"	"A10r-rw_S75"	"Rearing water"	"A10"	NA	22	"r"	"A"	"12300"	"RW"	"RW_Add-r"	"22"	NA	18.9429261564075
+"74"	"A11K-rw_S67"	"Rearing water"	"A11"	NA	22	"K"	"A"	"4000"	"RW"	"RW_Add-K"	"22"	NA	15.8987796084409
+"75"	"A13r-rw_S76"	"Rearing water"	"A13"	NA	22	"r"	"A"	"1900"	"RW"	"RW_Add-r"	"22"	NA	16.1674808483213
+"76"	"A14K-rw_S68"	"Rearing water"	"A14"	NA	22	"K"	"A"	"7400"	"RW"	"RW_Add-K"	"22"	NA	15.028076221716
+"77"	"A2r-rw_S73"	"Rearing water"	"A2"	NA	22	"r"	"A"	"10500"	"RW"	"RW_Add-r"	"22"	NA	18.9099681772288
+"78"	"A3K-rw_S65"	"Rearing water"	"A3"	NA	22	"K"	"A"	"9800"	"RW"	"RW_Add-K"	"22"	NA	15.9980079755444
+"79"	"A5r-rw_S74"	"Rearing water"	"A5"	NA	22	"r"	"A"	"3600"	"RW"	"RW_Add-r"	"22"	NA	17.310050214159
+"80"	"A6K-rw_S66"	"Rearing water"	"A6"	NA	22	"K"	"A"	"12200"	"RW"	"RW_Add-K"	"22"	NA	15.4922261595796
+"81"	"W10K-rw_S71"	"Rearing water"	"W10"	NA	22	"K"	"W"	"7200"	"RW"	"RW_Add-K"	"22"	NA	15.0587239110739
+"82"	"W13r-rw_S80"	"Rearing water"	"W13"	NA	22	"r"	"W"	"2200"	"RW"	"RW_Add-r"	"22"	NA	17.6789341916827
+"83"	"W14K-rw_S72"	"Rearing water"	"W14"	NA	22	"K"	"W"	"10800"	"RW"	"RW_Add-K"	"22"	NA	14.3037869177887
+"84"	"W1r-rw_S77"	"Rearing water"	"W1"	NA	22	"r"	"W"	"5100"	"RW"	"RW_Add-r"	"22"	NA	18.5428465962605
+"85"	"W2K-rw_S69"	"Rearing water"	"W2"	NA	22	"K"	"W"	"10300"	"RW"	"RW_Add-K"	"22"	NA	15.3590105285374
+"86"	"W5r-rw_S78"	"Rearing water"	"W5"	NA	22	"r"	"W"	"1900"	"RW"	"RW_Add-r"	"22"	NA	17.3735272378671
+"87"	"W7K-rw_S70"	"Rearing water"	"W7"	NA	22	"K"	"W"	"16200"	"RW"	"RW_Add-K"	"22"	NA	15.1524393124335
+"88"	"W9r-rw_S79"	"Rearing water"	"W9"	NA	22	"r"	"W"	"3400"	"RW"	"RW_Add-r"	"22"	NA	16.7080973161797

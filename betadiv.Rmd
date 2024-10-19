@@ -1,0 +1,482 @@
+```{r}
+library(ggplot2)
+library(dplyr)
+library(phyloseq)
+library(vegan)
+library(tidyverse)
+
+filepath ="C:/Users/madel/OneDrive - NTNU/Doktorgrad/Project 5 - Amalies prosjekt - rK intake water in salmon larvea/R-analysis/" 
+filepath_figures = paste0(filepath, "Figures/", Sys.Date(), "_")
+source(file = "plot_theme.R")
+ps = readRDS(file = paste0(filepath, "2023-04-17_phyloseq_without_salmon.RDS"))
+sample_data(ps)=sample_data(ps) %>% data.frame() %>% 
+  mutate(SampleType2 = case_when(Sample_type == "Intake water"~"AW", 
+                                 Sample_type == "Rearing water" ~ "RW", 
+                                 T ~Sample_type)) %>%
+  mutate(Group = paste0(SampleType2, "_Add-", Selection)) %>%
+  mutate(Group = factor(Group, levels = c("Gut_Add-K", "Gut_Add-r", "RW_Add-K",
+                                          "RW_Add-r", "AW_Add-K", "AW_Add-r"))) %>% 
+  mutate(DPE = DPE + 7) %>%
+  mutate(dph = as.character(DPE)) %>% 
+  mutate(dph = factor(dph, levels = c("14", "16", "18", "21", "22"))) %>%
+  sample_data()
+```
+
+# Added water
+```{r}
+sample_data(ps)
+physeq = subset_samples(ps, Sample_type == "Intake water")
+ps_matrix <- t(as.data.frame(otu_table(physeq))) 
+distance_bray= vegdist(ps_matrix, method="bray", binary = TRUE)
+ordination_bray = phyloseq::ordinate(physeq = physeq, method = "PCoA", distance = distance_bray) 
+plot_bray= phyloseq::plot_ordination(physeq = physeq, ordination = ordination_bray, axes = c(1,2), justDF = T)
+
+evals1 <- round(ordination_bray$values$Eigenvalues[1] / sum(ordination_bray$values$Eigenvalues) * 100, 2)
+evals2 <- round(ordination_bray$values$Eigenvalues[2] / sum(ordination_bray$values$Eigenvalues) * 100, 2)
+  
+plot_aw = plot_bray %>% 
+  ggplot(aes(x=Axis.1, y = Axis.2, 
+                                  fill = Group,color = Group) )  +
+  my.theme +
+  geom_hline(yintercept = 0, color = "grey28") + 
+  geom_vline(xintercept = 0, color = "grey28") +
+  geom_point(size = 4, aes(shape = dph , fill = Group), color = "black") + 
+  scale_shape_manual("dph", values = c(21,22,23,24, 25)) + 
+  
+  guides(fill = guide_legend("", override.aes = list(shape = 21 ))) +
+  
+  xlab(paste("PCoA 1 (", evals1, "%)", sep = "")) +
+  ylab(paste("PCoA 2 (", evals2, "%)", sep = "")) + 
+  coord_fixed(ratio = evals2/evals1) +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  scale_fill_manual(values = c(cbPalette[3], cbPalette[2]))
+```
+```{r}
+ggsave(filename = paste0(filepath_figures, "Fig_3_addedwater_pcoa.png"), width = 180, 
+       height = 70, units = "mm")
+```
+
+# Rearing water
+```{r}
+physeq = subset_samples(ps, Sample_type != "Gut")
+ps_matrix <- t(as.data.frame(otu_table(physeq))) 
+distance_bray= vegdist(ps_matrix, method="bray", binary = TRUE)
+ordination_bray = phyloseq::ordinate(physeq = physeq, method = "PCoA", distance = distance_bray) 
+plot_bray= phyloseq::plot_ordination(physeq = physeq, ordination = ordination_bray, axes = c(1,2), justDF = T)
+
+evals1 <- round(ordination_bray$values$Eigenvalues[1] / sum(ordination_bray$values$Eigenvalues) * 100, 2)
+evals2 <- round(ordination_bray$values$Eigenvalues[2] / sum(ordination_bray$values$Eigenvalues) * 100, 2)
+  
+plot_rearingadded = plot_bray %>% 
+  ggplot(aes(x=Axis.1, y = Axis.2, 
+                                  fill = Group,color = Group) )  +
+  my.theme +
+  geom_hline(yintercept = 0, color = "grey28") + 
+  geom_vline(xintercept = 0, color = "grey28") +
+  geom_point(size = 4, aes(shape = dph , fill = Group), color = "black") + 
+  scale_shape_manual(values = c(21,22,23,24, 25)) + 
+  
+  guides(fill = guide_legend("", override.aes = list(shape = 21 ))) +
+  
+  xlab(paste("PCoA 1 (", evals1, "%)", sep = "")) +
+  ylab(paste("PCoA 2 (", evals2, "%)", sep = "")) + 
+  coord_fixed(ratio = evals2/evals1) +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  scale_fill_manual(values = c(cbPalette[7], cbPalette[6], cbPalette[2], cbPalette[3]))
+```
+
+
+```{r}
+physeq = subset_samples(ps, Sample_type == "Rearing water")
+ps_matrix <- t(as.data.frame(otu_table(physeq))) 
+distance_bray= vegdist(ps_matrix, method="bray", binary = TRUE)
+ordination_bray = phyloseq::ordinate(physeq = physeq, method = "PCoA", distance = distance_bray) 
+plot_bray= phyloseq::plot_ordination(physeq = physeq, ordination = ordination_bray, axes = c(1,2), justDF = T)
+
+evals1 <- round(ordination_bray$values$Eigenvalues[1] / sum(ordination_bray$values$Eigenvalues) * 100, 2)
+evals2 <- round(ordination_bray$values$Eigenvalues[2] / sum(ordination_bray$values$Eigenvalues) * 100, 2)
+  
+plot_rearing = 
+
+plot_bray %>% 
+  ggplot(aes(x=Axis.1, y = Axis.2, 
+                                  fill = Group,color = Group) )  +
+  my.theme +
+  geom_hline(yintercept = 0, color = "grey28") + 
+  geom_vline(xintercept = 0, color = "grey28") +
+  geom_point(size = 4, aes(shape = dph , fill = Group), color = "black") + 
+  scale_shape_manual(values = c(25)) + 
+  
+  guides(fill = guide_legend("", override.aes = list(shape = 21 ))) +
+  
+  xlab(paste("PCoA 1 (", evals1, "%)", sep = "")) +
+  ylab(paste("PCoA 2 (", evals2, "%)", sep = "")) + 
+  coord_fixed(ratio = evals2/evals1) +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  scale_fill_manual(values = c(cbPalette[7], cbPalette[6]))
+```
+# Gut 
+```{r}
+physeq = subset_samples(ps, Sample_type == "Gut")
+ps_matrix <- t(as.data.frame(otu_table(physeq))) 
+distance_bray= vegdist(ps_matrix, method="bray", binary = TRUE)
+ordination_bray = phyloseq::ordinate(physeq = physeq, method = "PCoA", distance = distance_bray) 
+plot_bray= phyloseq::plot_ordination(physeq = physeq, ordination = ordination_bray, axes = c(1,2), justDF = T)
+
+evals1 <- round(ordination_bray$values$Eigenvalues[1] / sum(ordination_bray$values$Eigenvalues) * 100, 2)
+evals2 <- round(ordination_bray$values$Eigenvalues[2] / sum(ordination_bray$values$Eigenvalues) * 100, 2)
+  
+plot_gut_strain = plot_bray %>% 
+  mutate(Strain = case_when(Strain == "A" ~ "Gut_Aq", 
+                            Strain == "W" ~ "Gut_Wi")) %>%
+  ggplot(aes(x=Axis.1, y = Axis.2, 
+                                  fill = Strain,color = Strain) )  +
+  my.theme +
+  geom_hline(yintercept = 0, color = "grey28") + 
+  geom_vline(xintercept = 0, color = "grey28") +
+  geom_point(size = 4, aes(fill = Strain), color = "black", shape = 21) + 
+  
+  guides(fill = guide_legend("", override.aes = list(shape = 21 ))) +
+  
+  xlab(paste("PCoA 1 (", evals1, "%)", sep = "")) +
+  ylab(paste("PCoA 2 (", evals2, "%)", sep = "")) + 
+  coord_fixed(ratio = evals2/evals1) +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  scale_fill_manual(values = c(cbPalette[4], cbPalette[5]))
+
+plot_gut_sel = plot_bray %>% 
+  ggplot(aes(x=Axis.1, y = Axis.2, 
+                                  fill = Group,color = Group) )  +
+  my.theme +
+  geom_hline(yintercept = 0, color = "grey28") + 
+  geom_vline(xintercept = 0, color = "grey28") +
+  geom_point(size = 4, aes(fill = Group), color = "black", shape = 21) + 
+  
+  guides(fill = guide_legend("", override.aes = list(shape = 21 ))) +
+  
+  xlab(paste("PCoA 1 (", evals1, "%)", sep = "")) +
+  ylab(paste("PCoA 2 (", evals2, "%)", sep = "")) + 
+  coord_fixed(ratio = evals2/evals1) +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  scale_fill_manual(values = c(cbPalette[2], cbPalette[3]))
+```
+
+
+```{r}
+physeq = subset_samples(ps, Sample_type == "Gut")
+ps_matrix <- t(as.data.frame(otu_table(physeq))) 
+distance_bray= vegdist(ps_matrix, method="bray", binary = TRUE)
+ordination_bray = phyloseq::ordinate(physeq = physeq, method = "PCoA", distance = distance_bray) 
+plot_bray= phyloseq::plot_ordination(physeq = physeq, ordination = ordination_bray, axes = c(1,2), justDF = T)
+
+evals1 <- round(ordination_bray$values$Eigenvalues[1] / sum(ordination_bray$values$Eigenvalues) * 100, 2)
+evals2 <- round(ordination_bray$values$Eigenvalues[2] / sum(ordination_bray$values$Eigenvalues) * 100, 2)
+  
+plot_bray %>% 
+  ggplot(aes(x=Axis.1, y = Axis.2, 
+                                  fill = Flask,color = Flask) )  +
+  my.theme +
+  geom_hline(yintercept = 0, color = "grey28") + 
+  geom_vline(xintercept = 0, color = "grey28") +
+  geom_point(size = 4, aes(fill = Flask), color = "black", shape = 21) + 
+  
+  guides(fill = guide_legend("", override.aes = list(shape = 21 ))) +
+  
+  xlab(paste("PCoA 1 (", evals1, "%)", sep = "")) +
+  ylab(paste("PCoA 2 (", evals2, "%)", sep = "")) + 
+  coord_fixed(ratio = evals2/evals1) +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  scale_fill_manual(values = col)
+
+```
+
+
+# Gut and rearing
+```{r}
+physeq = subset_samples(ps, Sample_type %in% c("Gut", "Rearing water"))
+ps_matrix <- t(as.data.frame(otu_table(physeq))) 
+distance_bray= vegdist(ps_matrix, method="bray", binary = TRUE)
+ordination_bray = phyloseq::ordinate(physeq = physeq, method = "PCoA", distance = distance_bray) 
+plot_bray= phyloseq::plot_ordination(physeq = physeq, ordination = ordination_bray, axes = c(1,2), justDF = T)
+
+evals1 <- round(ordination_bray$values$Eigenvalues[1] / sum(ordination_bray$values$Eigenvalues) * 100, 2)
+evals2 <- round(ordination_bray$values$Eigenvalues[2] / sum(ordination_bray$values$Eigenvalues) * 100, 2)
+  
+plot_gutrearing = 
+
+plot_bray %>% 
+  ggplot(aes(x=Axis.1, y = Axis.2, 
+                                  fill = Group,color = Group) )  +
+  my.theme +
+  geom_hline(yintercept = 0, color = "grey28") + 
+  geom_vline(xintercept = 0, color = "grey28") +
+  geom_point(size = 4, aes(fill = Group, shape = Group), color = "black") + 
+  scale_shape_manual(values = c(21,21,24,24)) +
+  xlab(paste("PCoA 1 (", evals1, "%)", sep = "")) +
+  ylab(paste("PCoA 2 (", evals2, "%)", sep = "")) + 
+  coord_fixed(ratio = evals2/evals1) +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  scale_fill_manual(values = c(cbPalette[3], cbPalette[2],cbPalette[6], cbPalette[7]))
+```
+
+# Quantify BrayCurtis
+```{r}
+#Calculate distances and betadisper
+ps_matrix <- t(as.data.frame(otu_table(ps)))
+distance_bray = vegdist(ps_matrix, method="bray", binary = FALSE)
+meta = data.frame(sample_data(ps))
+
+# Calculate Bray Curtis similarity
+dist_matrix_bray =
+  # Bray Curtis
+  as.matrix(distance_bray) %>%  
+  as_tibble(rownames="Sample_A") %>%
+  pivot_longer(-Sample_A, names_to = "Sample_B", values_to = "dissimilarity") %>%
+  filter(Sample_B < Sample_A)%>%
+  mutate(Similarity = 1-dissimilarity, distance = "Bray Curtis") %>% 
+  select(-dissimilarity) 
+
+# merge with metadata 
+dist_with_meta = left_join(dist_matrix_bray, meta %>% rename_all(~paste0(., "_A")), by = "Sample_A" ) %>%
+  left_join(., meta %>% rename_all(~paste0(., "_B")), by = "Sample_B")
+
+dist_with_meta1 = dist_with_meta %>% 
+  select(-Density_cell_uL_A, -Density_cell_uL_B) %>%
+  mutate(group_comp = paste0(Group_A, " vs ", Group_B), 
+         dph_comp = paste0(dph_A, "_", dph_B)) %>%
+    mutate(group_comp = 
+             case_when(group_comp == "Gut_Add-r vs Gut_Add-r" ~ "Gut_Add-r", 
+                       group_comp == "Gut_Add-r vs Gut_Add-K" ~ "Gut_Add-K vs Gut_Add-r", 
+                       group_comp == "Gut_Add-K vs Gut_Add-K" ~ "Gut_Add-K", 
+                       group_comp == "RW_Add-r vs RW_Add-r" ~"RW_Add-r", 
+                       group_comp == "RW_Add-K vs RW_Add-K" ~"RW_Add-K", 
+                       group_comp == "RW_Add-r vs Rw_Add-K" ~"Rw_Add-K vs RW_Add-r", 
+                       group_comp == "AW_Add-K vs AW_Add-K" ~"AW_Add-K", 
+                       group_comp == "AW_Add-r vs AW_Add-r" ~"AW_Add-r", 
+                       group_comp == "AW_Add-r vs AW_Add-K" ~"AW_Add-K vs AW_Add-r", 
+                       group_comp == "RW_Add-K vs Gut_Add-K" ~ "Gut_Add-K vs RW_Add-K", 
+                       group_comp == "RW_Add-r vs Gut_Add-r" ~ "Gut_Add-r vs RW_Add-r", 
+                       group_comp == "AW_Add-r vs Gut_Add-r" ~ "Gut_Add-r vs AW_Add-r", 
+                       group_comp == "AW_Add-K vs Gut_Add-K" ~ "Gut_Add-K vs AW_Add-K", 
+                      TRUE ~ group_comp) ) %>%
+  mutate(group_comp2 = factor(group_comp, levels = c("Rw_Add-K", "RW_Add-r", 
+                                                    "RW_Add-K vs RW_Add-r", 
+                                                    "AW_Add-K", "AW_Add-r", 
+                                                    "AW_Add-K vs AW_Add-r", 
+                                                    "AW_Add-K vs RW_Add-K", 
+                                                    "AW_Add-r vs RW_Add-r", 
+                                                    "Gut_Add-K vs RW_Add-K",
+                                                    "Gut_Add-r vs RW_Add-r",
+                                                    "Gut_Add-K vs AW_Add-K", 
+                                                    "Gut_Add-r vs AW_Add-r", 
+                                                    "Gut_Add-K vs Gut_Add-r",
+                                                    "Gut_Add-r", "Gut_Add-K"))) 
+```
+
+
+```{r}
+bc_aw_plot = dist_with_meta1 %>% 
+  filter(SampleType2_B == "AW", SampleType2_A == "AW") %>%
+  ggplot(aes(x=group_comp, y = Similarity, group = group_comp2)) + 
+  my.theme + 
+  geom_point(shape = 21, size = 2, color = "black", fill = "black") + 
+  stat_summary(fun.data = conf3, 
+               color = "black", 
+               geom = "boxplot", 
+               alpha = 0.7, 
+               show.legend = F) + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 0.90, vjust = 1), strip.text.x = element_text(size = 7), 
+        axis.title.x = element_blank()) + 
+  ylab("Bray Curtis similarity")
+```
+
+
+```{r}
+bc_aw_rw_plot  = dist_with_meta1 %>% 
+  filter(group_comp %in% c("RW_Add-K", "RW_Add-r", "RW_Add-K vs RW_Add-r", "AW_Add-K vs RW_Add-K", "AW_Add-r vs RW_Add-r" )) %>%
+  mutate(group_comp = case_when(group_comp == "RW_Add-K vs RW_Add-r" ~
+                                  "RW_Add-K vs \n RW_Add-r",
+                                group_comp == "AW_Add-K vs RW_Add-K" ~
+                                  "AW_Add-K vs \n RW_Add-K",
+                                group_comp == "AW_Add-r vs RW_Add-r" ~
+                                  "AW_Add-r vs \n RW_Add-r",
+                                T ~ group_comp)) %>% 
+  mutate(group_comp = factor(group_comp, levels = c("RW_Add-K", 
+                                                    "RW_Add-r", 
+                                                    "RW_Add-K vs \n RW_Add-r", 
+                                                    "AW_Add-K vs \n RW_Add-K", 
+                                                    "AW_Add-r vs \n RW_Add-r" ))) %>% 
+  ggplot(aes(x=group_comp, y = Similarity, group = group_comp)) + 
+  my.theme + 
+  geom_point(shape = 21, size = 2, color = "black", fill = "black") + 
+  stat_summary(fun.data = conf3, 
+               color = "black", 
+               geom = "boxplot", 
+               alpha = 0.7, 
+               show.legend = F) + 
+  theme(axis.text.x = element_text(angle = 35, hjust = 0.90, vjust = 1, size=8),
+    strip.text.x = element_text(size = 7), 
+        axis.title.x = element_blank()) + 
+  ylab("Bray Curtis similarity")
+```
+```{r}
+dist_with_meta1 %>% 
+  filter(group_comp %in% c("RW_Add-K", "RW_Add-r", "RW_Add-K vs RW_Add-r", "AW_Add-K vs RW_Add-K", "AW_Add-r vs RW_Add-r" )) %>%
+  mutate(group_comp = case_when(group_comp == "RW_Add-K vs RW_Add-r" ~
+                                  "RW_Add-K vs \n RW_Add-r",
+                                group_comp == "AW_Add-K vs RW_Add-K" ~
+                                  "AW_Add-K vs \n RW_Add-K",
+                                group_comp == "AW_Add-r vs RW_Add-r" ~
+                                  "AW_Add-r vs \n RW_Add-r",
+                                T ~ group_comp)) %>% 
+  mutate(group_comp = factor(group_comp, levels = c("RW_Add-K", 
+                                                    "RW_Add-r", 
+                                                    "RW_Add-K vs \n RW_Add-r", 
+                                                    "AW_Add-K vs \n RW_Add-K", 
+                                                    "AW_Add-r vs \n RW_Add-r" ))) %>%
+  group_by(group_comp) %>%
+  summarise(av_bc = mean(Similarity), sd = sd(Similarity))
+```
+
+```{r}
+bc_aw_rw_plot = dist_with_meta1 %>% 
+  filter(group_comp2 %in% 
+           c("Gut_Add-K vs RW_Add-K", "Gut_Add-r vs RW_Add-r","Gut_Add-K vs AW_Add-K", "Gut_Add-r vs AW_Add-r" )) %>%
+  ggplot(aes(y=group_comp, x = Similarity, group = group_comp)) + 
+  my.theme + 
+  geom_point(shape = 21, size = 2, color = "black", fill = "black") + 
+  stat_summary(fun.data = conf3, 
+               color = "black", 
+               geom = "boxplot", 
+               alpha = 0.7, 
+               show.legend = F) + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 0.80, vjust = 1), strip.text.x = element_text(size = 7), 
+        axis.title.y = element_blank()) + 
+  xlab("Bray Curtis similarity") +
+  coord_cartesian(expand = F, xlim = c(0,0.8))
+```
+
+## Gut quantify beta div
+```{r}
+dist_with_meta1 %>% 
+  filter(group_comp2 %in% 
+           c("Gut_Add-K", "Gut_Add-r", "Gut_Add-K vs Gut_Add-r" )) %>%
+  ggplot(aes(y=group_comp2, x = Similarity, group = group_comp2)) + 
+  my.theme + 
+  geom_point(shape = 21, size = 1, color = "black", fill = "black") + 
+  stat_summary(fun.data = conf3, width = 0.3,
+               color = "black", 
+               geom = "boxplot", 
+               alpha = 0.7, 
+               show.legend = F) + 
+  theme(axis.title.y = element_blank()) + 
+  xlab("Bray Curtis similarity") +
+  coord_cartesian(expand = F, xlim = c(0,0.8))
+
+ggsave(filename = paste0(filepath_figures, "SuppFig_2_gut_braycurtis.png"), width = 180, height = 50, units = "mm")
+```
+
+# Shared ASVs
+```{r}
+ps_longer_shared = ps %>% 
+  phyloseq::otu_table() %>%  t() %>% as.data.frame() %>%
+  dplyr::mutate(SampleID = rownames(.)) %>% 
+  pivot_longer(-SampleID) 
+
+ps_longer_meta_shared = ps_longer_shared %>% 
+  left_join(., microbiome::sample_tibble(ps), by = join_by(SampleID)) %>%
+  rename(ASV = "name") %>%
+  left_join(., microbiome::tax_tibble(ps) %>% rename(ASV = "FeatureID"), by = join_by(ASV)) %>%
+  mutate(Family2 = case_when(substr(Family, 1, 4) == "uncl"~"Unassigned", 
+                             T ~ substring(Family, 3))) %>%
+  mutate(ASV = paste0("ASV",substring(ASV, 5))) %>%
+  mutate(ASV1 = case_when(substring(Genus, 1, 1) == "g" ~ paste0(ASV, " (g:",substring(Genus, 3),")"),
+                          substring(Family, 1, 1) == "f" ~ paste0(ASV, " (f:",substring(Family, 3),")"),
+                          substring(Order, 1, 1) == "o" ~ paste0(ASV, " (o:",substring(Order, 3),")"),
+                          substring(Class, 1, 1) == "c" ~ paste0(ASV, " (c:",substring(Class, 3),")"),
+                          substring(Phylum, 1, 1) == "p" ~ paste0(ASV, " (p:",substring(Phylum, 3),")"),
+                          TRUE ~ paste0(ASV, " (d:",substring(Domain, 3),")")) )
+```
+
+```{r}
+shared_all = ps_longer_meta_shared %>% 
+  select(ASV, value, Group) %>%
+  mutate(Group =str_replace_all(Group,pattern = '-',replacement = '_') ) %>%
+  group_by(ASV, Group) %>%
+  summarise(sum_value = sum(value)) %>%
+  pivot_wider(names_from = "Group", values_from = "sum_value")
+
+shared_gutK = shared_all %>% 
+  select(contains("Add_K")) %>% 
+  filter(Gut_Add_K>0) %>%
+  mutate(shared = case_when(Gut_Add_K>0 & AW_Add_K > 0 & RW_Add_K > 0 ~ "Aw and Rw",
+                            Gut_Add_K>0 & AW_Add_K > 0 & RW_Add_K == 0 ~ "Aw", 
+                            Gut_Add_K>0 & AW_Add_K == 0 & RW_Add_K == 0 ~ "unique to Gut", 
+                            Gut_Add_K>0 & AW_Add_K == 0 & RW_Add_K > 0 ~ "Rw" )) %>%
+  select(ASV, shared, Gut_Add_K) %>%
+  ungroup() %>% group_by(shared) %>%
+  summarise(n_ASV = n()) %>%
+  mutate(tot_ASV = sum(n_ASV), fraction = n_ASV/tot_ASV, group = "Gut_Add-K")
+
+shared_gutr = shared_all %>% 
+  select(contains("Add_r")) %>%
+  filter(Gut_Add_r>0) %>%
+  mutate(shared = case_when(Gut_Add_r>0 & AW_Add_r > 0 & RW_Add_r > 0 ~ "Aw and Rw",
+                            Gut_Add_r>0 & AW_Add_r > 0 & RW_Add_r == 0 ~ "Aw", 
+                            Gut_Add_r>0 & AW_Add_r == 0 & RW_Add_r == 0 ~ "unique to Gut", 
+                            Gut_Add_r>0 & AW_Add_r == 0 & RW_Add_r > 0 ~ "Rw" )) %>%
+  select(ASV, shared, Gut_Add_r) %>%
+  ungroup() %>% group_by(shared) %>%
+  summarise(n_ASV = n()) %>%
+  mutate(tot_ASV = sum(n_ASV), fraction = n_ASV/tot_ASV, group = "Gut_Add-r")
+  
+fraction_plot =  bind_rows(shared_gutr, shared_gutK) %>%
+  mutate(shared = factor(shared, levels = unique(shared)[order(fraction, decreasing = F)])) %>%
+  ggplot(aes(x=group, y = fraction, fill = shared)) + 
+  geom_bar(stat = "identity") + 
+  my.theme + 
+  coord_cartesian(expand = F) + 
+  ylab("Fraction of ASVs") +
+  scale_fill_manual(values = cbPalette[c(6, 1, 2, 3)], "ASVs shared with") 
+```
+#Figure 3
+```{r}
+ggpubr::ggarrange(plot_aw, bc_aw_plot, labels = c("a)", "b)"), widths = c(0.75,0.25)) + 
+  ggpubr::bgcolor(color = "white")
+ggsave(filename = paste0(filepath_figures, "Fig_3_added_water.png"), width = 180, height = 100, units = "mm")
+
+bc_aw_plot
+ggsave(filename = paste0(filepath_figures, "Fig_3x_added_water_braycurtissim.png"), width = 180, height = 100, units = "mm")
+```
+
+# Figure 5
+```{r}
+ggpubr::ggarrange(bc_aw_rw_plot,  plot_rearingadded, plot_rearing, 
+                  common.legend = TRUE, legend = "right", nrow = 3,labels = c("a)", "b)", "c)")) + 
+  ggpubr::bgcolor(color = "white")
+
+ggsave(filename = paste0(filepath_figures, "Fig_5_rearingwater.png"), width = 180, height = 200, units = "mm")
+```
+
+# Figure 7
+```{r}
+ggpubr::ggarrange(plot_gut_strain, plot_gut_sel, 
+                  common.legend = F, legend = "right", nrow =2 ,labels = c("a)", "b)")) + 
+  ggpubr::bgcolor(color = "white")
+
+ggsave(filename = paste0(filepath_figures, "Fig_7_gutsamples.png"), width = 180, height = 120, units = "mm")
+```
+
+# Figure 9
+```{r}
+fraction_plot1 = fraction_plot + theme(legend.position = "right") + 
+  guides(fill = guide_legend(nrow = 4)) + xlab("")
+fraction_plot1 = addSmallLegend(myPlot = fraction_plot1, spaceLegend = 0.8,textSize = 9)
+
+ggpubr::ggarrange(plot_gutrearing, 
+                  ggpubr::ggarrange(bc_aw_rw_plot, 
+                                    fraction_plot1, widths = c(1.2,1),labels = c("","c)")), nrow = 2, labels = c("a)", "b)", "c)"))  + 
+  ggpubr::bgcolor(color = "white")
+
+ggsave(filename = paste0(filepath_figures, "Fig_9_gut_vs_water_samples.png"), width = 180, height = 140, units = "mm")
+```
