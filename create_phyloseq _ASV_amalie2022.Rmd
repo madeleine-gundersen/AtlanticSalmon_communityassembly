@@ -1,0 +1,125 @@
+---
+title: "Create phyloseq object of Amalies ASV dataset"
+author: "Madeleine Gundersen"
+date: "14 03 2022"
+---
+Script for making a phyloseq object from an OTU table. The phyloseq class merges information about your dataset, and incorporates OTU tables, taxonomy tables, phylogenecy and sample classes. The phyloseq-class is intended to allow the representation of all the useful features of a phylogenetic sequencing project as one coherent object (see https://github.com/joey711/phyloseq/wiki/phyloseq-class-structure-(developer) ) 
+
+comments are above functions/commands 
+always check that the data frames are in accordance with your expectations and good luck with your analysis :) 
+~Madeleine Gundersen~
+
+
+1. Load required packages, it can be useful to note the library version which is done by packageVersion("package"). Packages are installed by install.packages("package")
+```{r}
+#first, we need to install relevant packages. First we install bioconductor that is requied to install many other packages. 
+
+#if (!requireNamespace("BiocManager", quietly = TRUE))
+#    install.packages("BiocManager")
+#BiocManager::install()
+
+BiocManager::install("phyloseq") #installes the package phyloseq
+library("phyloseq") #loads the package
+packageVersion("phyloseq") #the package version, take note of this
+
+#BiocManager::install("readxl")
+library("readxl")
+packageVersion("readxl") 
+
+#BiocManager::install("magrittr")
+library("magrittr")
+packageVersion("magrittr") 
+
+#BiocManager::install("ape") 
+library("ape")
+packageVersion("ape") 
+```
+
+2. Import your OTU table
+```{r}
+otumatrix = read_delim("/Users/mjgunder/Library/CloudStorage/OneDrive-NTNU/Doktorgrad/Ferdige prosjekter/Project 5 - Amalies prosjekt - rK intake water in salmon larvea/ASV_2022/zOTU_streng_normalisert_navn.txt") %>% as.data.frame()
+otumatrix.1 = otumatrix[,1:89] #remove 4 empthy rows imported above
+# changes the rownames to OTU ids
+row.names(otumatrix.1) = otumatrix.1[, 1]
+# deletes the first column
+otumatrix.2 = subset(otumatrix.1, select = c(colnames(otumatrix.1)[2:length(otumatrix.1)]))
+
+# makes a phyloseq object with an OTU table
+OTU = phyloseq::otu_table(otumatrix.2, taxa_are_rows = TRUE)
+```
+
+Before you continue double check that the otumatrix containes the same number of variables as the number of samples that you have. 
+
+2. Import taxonomy information
+TaxonomyTable class - a type of matrix. Taxa as rows and columns as taxonomic level 
+check that you are in the working directory your files are stored and
+make sure the file import_sintax_file.R is there. 
+The script can be found and downloaded here: https://rdrr.io/github/jfq3/RDPutils/src/R/import_sintax_file.R
+
+```{r}
+# loads the function to the global enviroment 
+source("/Users/mjgunder/Library/CloudStorage/OneDrive-NTNU/Doktorgrad/Ferdige prosjekter/Project 5 - Amalies prosjekt - rK intake water in salmon larvea/ASV_2022/Scripts/import_sintax-file.R")
+
+taxmat = import_sintax_file("/Users/mjgunder/Library/CloudStorage/OneDrive-NTNU/Doktorgrad/Ferdige prosjekter/Project 5 - Amalies prosjekt - rK intake water in salmon larvea/ASV_2022/zotus.sintax", 
+                            confidence = 0.8)
+
+TAX = phyloseq::tax_table(taxmat)
+
+# combine OTU table and taxonomy and name it as "your experiment"
+experiment = phyloseq::phyloseq(OTU, TAX)
+```
+
+Now you have a phyloseq object containing OTU and taxonomy information.
+
+3. Import variables 
+sampleClass - a type of data frame. Store categorical and numerical data for each sample. Samples as rows and variables as columns. Make an excel file with all your samples in the first column, and the first row should be all your variables (temperature, growth condition, ect)
+import the excel file into R as a data.frame
+http://www.sthda.com/english/wiki/reading-data-from-excel-files-xls-xlsx-into-r
+
+```{r}
+#converts your excel document to a data frame 
+variables = readxl::read_xlsx("/Users/mjgunder/Library/CloudStorage/OneDrive-NTNU/Doktorgrad/Ferdige prosjekter/Project 5 - Amalies prosjekt - rK intake water in salmon larvea/ASV_2022/Metadata.xlsx", 
+                              sheet = 1) %>% as.data.frame
+#changes the row names to the sample names. These must be the same as the sample names in the OTU file
+row.names(variables)=variables$`Sample`  #Sample names is the column name of the samples 
+
+#converts the data.frame to phyloseq class
+sam_variables = phyloseq::sample_data(variables)
+
+#Now integrate the variables into the physeq object experiment
+experiment = phyloseq::merge_phyloseq(experiment, sam_variables)
+```
+
+4. Import phylogenetic tree 
+If you have a phylogenetic tree it can be added to the phyloseq object. This enables unifrac calulations to be performed. MEGA7 (a free program) can be used to compose a phylogenetic three. 
+
+```{r}
+#load phylogenetic tree created previously 
+tree = readRDS(file = "/Users/mjgunder/Library/CloudStorage/OneDrive-NTNU/Doktorgrad/Ferdige prosjekter/Project 5 - Amalies prosjekt - rK intake water in salmon larvea/ASV_2022/150322_amalie_phytree_rk_fishwater.RDS")
+
+tree.1 = tree$tree
+
+#root phylogenetic tree
+tree.unrooted = tree.1
+
+source(file = "/Users/mjgunder/Library/CloudStorage/OneDrive-NTNU/Doktorgrad/Ferdige prosjekter/Project 5 - Amalies prosjekt - rK intake water in salmon larvea/ASV_2022/Scripts/pick_new_outgroup.R")
+
+#pick_new_outgroup result in the ASV with the longest branch 
+
+new.outgroup = pick_new_outgroup(tree.unrooted) #Zotu498 chosen as outgroup
+
+#Now we root the tree with this otu as root
+rootedTree = ape::root(tree.unrooted, outgroup=new.outgroup, resolve.root=TRUE)
+experiment_merged = phyloseq(OTU, TAX, sam_variables, rootedTree) #dataset contains 3227 taxa
+```
+
+
+Congratulationz, you now have a physeq object and can use the many different funtions of Vegan and physeq.
+
+5. SAVING
+this step is usefull so you dont have to run this script every time you start up R. You can call the file whatever you want. 
+
+```{r}
+# makes an RDS file 
+saveRDS(experiment_merged, "/Users/mjgunder/Library/CloudStorage/OneDrive-NTNU/Doktorgrad/Ferdige prosjekter/Project 5 - Amalies prosjekt - rK intake water in salmon larvea/ASV_2022/170322_Amalie_phyloseq.RDS")
+```
